@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monica Gandhi Arokia Selvaraj — Embedded Systems & IoT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0F1C;
+    --panel: #111A2E;
+    --panel-hi: #16213A;
+    --trace: #35D8A0;
+    --trace-dim: #1E6F58;
+    --copper: #E8A854;
+    --text: #E7ECF6;
+    --text-mute: #8B96AC;
+    --line: #223252;
+    --radius: 10px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* faint PCB grid backdrop */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:44px 44px;
+    opacity:0.12;
+    pointer-events:none;
+    z-index:0;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+  .display{font-family:'Space Grotesk', sans-serif;}
+
+  a{color:inherit;}
+
+  /* ---------- Layout scaffolding ---------- */
+  .wrap{max-width:920px; margin:0 auto; padding:0 28px; position:relative; z-index:1;}
+
+  /* ---------- Nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter:blur(10px);
+    background:rgba(10,15,28,0.82);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .nav-id{font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--trace); letter-spacing:0.5px;}
+  .mono-brand{
+    display:inline-flex;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:21px;
+    letter-spacing:-1px;
+  }
+  .mono-brand .mono-m{
+    color:var(--trace);
+    text-shadow:0 0 12px rgba(53,216,160,0.55);
+  }
+  .mono-brand .mono-g{
+    color:var(--copper);
+    text-shadow:0 0 12px rgba(232,168,84,0.5);
+    margin-left:-2px;
+  }
+  .nav-links{display:flex; gap:26px; font-size:13px; font-family:'JetBrains Mono', monospace;}
+  .nav-links a{color:var(--text-mute); text-decoration:none; transition:color .2s;}
+  .nav-links a:hover{color:var(--trace);}
+  @media (max-width:640px){ .nav-links{display:none;} }
+
+  /* ---------- The schematic spine ---------- */
+  .spine{
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    width:2px;
+    background:linear-gradient(to bottom, transparent, var(--trace-dim) 4%, var(--trace-dim) 96%, transparent);
+    z-index:0;
+    transform:translateX(-50%);
+  }
+  .spine-pulse{
+    position:absolute; left:50%; top:0;
+    width:8px; height:8px; border-radius:50%;
+    background:var(--trace);
+    box-shadow:0 0 14px 4px rgba(53,216,160,0.7);
+    transform:translateX(-50%);
+    animation: pulse-travel 7s linear infinite;
+  }
+  @keyframes pulse-travel{
+    0%{ top:8%; opacity:0;}
+    5%{opacity:1;}
+    95%{opacity:1;}
+    100%{ top:98%; opacity:0;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .spine-pulse{animation:none; display:none;}
+  }
+  @media (max-width:760px){ .spine{display:none;} }
+
+  main{position:relative;}
+
+  /* ---------- Section node marker ---------- */
+  .node{
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:26px;
+  }
+  .node-dot{
+    width:10px; height:10px; border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--trace);
+    box-shadow:0 0 0 4px var(--bg), 0 0 10px 1px rgba(53,216,160,0.5);
+    flex-shrink:0;
+  }
+  .node-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--trace);
+  }
+  .node-rule{flex:1; height:1px; background:var(--line);}
+
+  section{padding:74px 0; position:relative;}
+
+  /* ---------- Hero ---------- */
+  .hero{padding-top:64px; padding-bottom:70px;}
+  .hero-tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--copper);
+    letter-spacing:2px;
+    text-transform:uppercase;
+    margin-bottom:18px;
+    display:inline-block;
+    border:1px solid var(--line);
+    padding:5px 12px;
+    border-radius:100px;
+  }
+  .oracle-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    color:var(--text);
+    background:linear-gradient(90deg, rgba(232,168,84,0.14), rgba(232,168,84,0.04));
+    border:1px solid rgba(232,168,84,0.45);
+    padding:7px 14px 7px 10px;
+    border-radius:100px;
+    margin:0 0 18px 12px;
+  }
+  .oracle-badge .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--copper);
+    box-shadow:0 0 8px 2px rgba(232,168,84,0.7);
+    flex-shrink:0;
+  }
+  @media (max-width:560px){
+    .oracle-badge{margin:10px 0 18px 0; display:flex; width:fit-content;}
+  }
+  .hero h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(34px, 5.4vw, 58px);
+    line-height:1.08;
+    letter-spacing:-0.5px;
+    margin-bottom:20px;
+  }
+  .hero h1 .accent{color:var(--trace);}
+  .hero p.lede{
+    max-width:560px;
+    color:var(--text-mute);
+    font-size:17px;
+    margin-bottom:34px;
+  }
+  .hero-actions{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:44px;}
+  .btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    padding:11px 20px;
+    border-radius:6px;
+    text-decoration:none;
+    display:inline-flex; align-items:center; gap:8px;
+    transition:all .2s;
+    border:1px solid var(--line);
+  }
+  .btn-primary{background:var(--trace); color:#08130E; border-color:var(--trace); font-weight:600;}
+  .btn-primary:hover{background:#4CE8B2;}
+  .btn-ghost{color:var(--text); background:transparent;}
+  .btn-ghost:hover{border-color:var(--trace); color:var(--trace);}
+
+  .pin-row{
+    display:flex; flex-wrap:wrap; gap:10px;
+  }
+  .pin{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--text-mute);
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:6px 12px;
+    border-radius:5px;
+    position:relative;
+  }
+  .pin::before{content:"● "; color:var(--trace); font-size:9px;}
+
+  /* ---------- Cards generic ---------- */
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 28px;
+  }
+
+  /* ---------- Education ---------- */
+  .edu-item{
+    display:grid;
+    grid-template-columns:130px 1fr;
+    gap:22px;
+    padding:22px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .edu-item:last-child{border-bottom:none;}
+  .edu-date{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--copper);}
+  .edu-school{font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:18px; margin-bottom:4px;}
+  .edu-degree{color:var(--text-mute); font-size:14px; margin-bottom:8px;}
+  .edu-note{font-size:14px; color:var(--text-mute); border-left:2px solid var(--trace-dim); padding-left:12px; margin-top:8px;}
+
+  /* ---------- Skills ---------- */
+  .skill-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+  @media (max-width:700px){.skill-grid{grid-template-columns:1fr;}}
+  .skill-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .skill-card h4{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--copper); margin-bottom:12px;
+  }
+  .skill-card ul{list-style:none;}
+  .skill-card li{
+    font-size:14.5px; padding:5px 0; color:var(--text);
+    display:flex; align-items:center; gap:8px;
+  }
+  .skill-card li::before{content:""; width:5px; height:5px; background:var(--trace); border-radius:50%; flex-shrink:0;}
+
+  /* ---------- Projects (IC chip cards) ---------- */
+  .proj{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:28px 30px;
+    margin-bottom:20px;
+    position:relative;
+    overflow:hidden;
+  }
+  .proj::before{
+    content:"";
+    position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:var(--trace);
+  }
+  .proj-head{display:flex; justify-content:space-between; align-items:baseline; gap:16px; margin-bottom:6px; flex-wrap:wrap;}
+  .proj-title{font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:19px;}
+  .proj-kicker{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--trace); letter-spacing:1px;}
+  .proj ul{margin-top:12px; padding-left:0; list-style:none;}
+  .proj li{
+    font-size:14.5px; color:var(--text-mute); padding:4px 0 4px 18px; position:relative;
+  }
+  .proj li::before{content:"›"; position:absolute; left:0; color:var(--copper); font-weight:700;}
+  .proj-links{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;}
+  .proj-link{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    padding:8px 14px;
+    border-radius:6px;
+    border:1px solid var(--line);
+    color:var(--text-mute);
+    text-decoration:none;
+    display:inline-flex; align-items:center; gap:7px;
+    transition:all .2s;
+  }
+  .proj-link:hover{border-color:var(--trace); color:var(--trace);}
+  .proj-link.demo:hover{border-color:var(--copper); color:var(--copper);}
+
+  /* ---------- Internships timeline ---------- */
+  .timeline-item{display:grid; grid-template-columns:150px 1fr; gap:22px; padding:20px 0; border-bottom:1px solid var(--line);}
+  .timeline-item:last-child{border-bottom:none;}
+  .tl-role{font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:17px;}
+  .tl-org{color:var(--copper); font-size:14px; margin-bottom:8px;}
+  .tl-date{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-mute);}
+  .tl-item p, .tl-item li{font-size:14.5px; color:var(--text-mute);}
+  .tl-item ul{list-style:none; margin-top:6px;}
+  .tl-item li{padding:3px 0 3px 16px; position:relative;}
+  .tl-item li::before{content:"›"; position:absolute; left:0; color:var(--trace);}
+
+  /* ---------- Certifications ---------- */
+  .cert-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+  @media (max-width:700px){.cert-grid{grid-template-columns:1fr;}}
+  .cert{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 20px; display:flex; gap:14px; align-items:flex-start;
+  }
+  .cert-featured{
+    border:1px solid rgba(232,168,84,0.5);
+    background:linear-gradient(135deg, rgba(232,168,84,0.08), var(--panel) 60%);
+    box-shadow:0 0 0 1px rgba(232,168,84,0.08), 0 6px 24px -8px rgba(232,168,84,0.25);
+  }
+  .cert-featured .cert-chip{background:var(--copper); color:#1A1204;}
+  .cert-chip{
+    font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--bg);
+    background:var(--trace); border-radius:4px; padding:3px 7px; flex-shrink:0; margin-top:2px;
+    font-weight:700;
+  }
+  .cert-name{font-size:14.5px; font-weight:500;}
+  .cert-issuer{font-size:12.5px; color:var(--text-mute); margin-top:2px;}
+
+  /* ---------- Footer ---------- */
+  footer{
+    padding:60px 0 40px;
+    text-align:center;
+    border-top:1px solid var(--line);
+    margin-top:20px;
+  }
+  footer .mono{color:var(--text-mute); font-size:12px;}
+
+  ::selection{background:var(--trace); color:#08130E;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-id">
+      <span class="mono-brand"><span class="mono-m">M</span><span class="mono-g">G</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="#education">Education</a>
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#certs">Certs</a>
+      <a href="#honors">Honors</a>
+    </div>
+  </div>
+</nav>
+
+<div class="spine"><div class="spine-pulse"></div></div>
+
+<main>
+  <div class="wrap">
+
+    <section class="hero">
+      <span class="hero-tag">Coimbatore, Tamil Nadu, India · Seeking internships 2026</span>
+      <span class="oracle-badge"><span class="dot"></span>Oracle Cloud Infrastructure 2026 Certified Foundations Associate</span>
+      <h1>Monica Gandhi<br>Arokia Selvaraj</h1>
+      <p class="lede">Final-year ECE student building at the intersection of <span style="color:var(--text)">embedded systems, VLSI, and IoT</span> — from a hackathon-built rural healthcare device to satellite signal processing. Hands-on with STM32, Arduino, and ESP32, programming in Embedded C and designing digital systems in Verilog HDL.</p>
+      <div class="hero-actions">
+        <a href="mailto:monicagandhia@gmail.com" class="btn btn-primary">Email me ↗</a>
+        <a href="https://www.linkedin.com/in/a-monica-gandhi-be-ece" target="_blank" rel="noopener" class="btn btn-ghost">LinkedIn</a>
+      </div>
+      <div class="pin-row">
+        <span class="pin">C / C++</span>
+        <span class="pin">Python</span>
+        <span class="pin">Verilog HDL</span>
+        <span class="pin">Embedded C</span>
+        <span class="pin">STM32</span>
+        <span class="pin">Arduino</span>
+        <span class="pin">ESP32</span>
+        <span class="pin">GTKWave</span>
+        <span class="pin">IoT</span>
+        <span class="pin">AI</span>
+        <span class="pin">OCI</span>
+      </div>
+    </section>
+
+    <section id="education">
+      <div class="node">
+        <div class="node-dot"></div>
+        <span class="node-label">Education</span>
+        <div class="node-rule"></div>
+      </div>
+      <div class="card" style="padding:8px 28px;">
+        <div class="edu-item">
+          <div class="edu-date">2023 — 2027</div>
+          <div>
+            <div class="edu-school">AIHSHEW, Coimbatore</div>
+            <div class="edu-degree">B.E. in Electronics and Communication · First Class</div>
+            <div class="edu-note">Master of Ceremony for inter-college technical events including Advaita — coordinated event execution and participant engagement.</div>
+          </div>
+        </div>
+        <div class="edu-item">
+          <div class="edu-date">2020 — 2023</div>
+          <div>
+            <div class="edu-school">PSGRKHSS, Coimbatore</div>
+            <div class="edu-degree">Class XII — 71.8% &nbsp;·&nbsp; Class X — 100%</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="node">
+        <div class="node-dot"></div>
+        <span class="node-label">Skills</span>
+        <div class="node-rule"></div>
+      </div>
+      <div class="skill-grid">
+        <div class="skill-card">
+          <h4>Programming</h4>
+          <ul>
+            <li>C</li>
+            <li>C++</li>
+            <li>Embedded C</li>
+            <li>Python</li>
+            <li>Verilog HDL</li>
+          </ul>
+        </div>
+        <div class="skill-card">
+          <h4>Core tech</h4>
+          <ul>
+            <li>Embedded Systems</li>
+            <li>VLSI</li>
+            <li>IoT</li>
+            <li>Digital Electronics</li>
+            <li>Artificial Intelligence</li>
+            <li>Oracle Cloud Infrastructure</li>
+          </ul>
+        </div>
+        <div class="skill-card">
+          <h4>Tools & Hardware</h4>
+          <ul>
+            <li>STM32</li>
+            <li>Arduino</li>
+            <li>ESP32</li>
+            <li>GTKWave</li>
+            <li>VS Code</li>
+            <li>Git / GitHub</li>
+            <li>MATLAB</li>
+            <li>Keil uVision</li>
+          </ul>
+        </div>
+        <div class="skill-card">
+          <h4>Languages spoken</h4>
+          <ul>
+            <li>English — Professional</li>
+            <li>German — Elementary</li>
+            <li>Japanese — Elementary</li>
+            <li>Spanish — Elementary</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="node">
+        <div class="node-dot"></div>
+        <span class="node-label">Projects</span>
+        <div class="node-rule"></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-head">
+          <div class="proj-title">MediGuard</div>
+          <div class="proj-kicker">IoT · 36-HR NATIONAL HACKATHON · FEB 2026</div>
+        </div>
+        <p style="color:var(--text-mute); font-size:14.5px;">A temperature-aware storage system, built during a 36-hour national-level hackathon hosted by New Prince Shri Bhavani College with IEEE & IETE, to keep sensitive medicines safe in rural healthcare settings.</p>
+        <ul>
+          <li>Built an IoT-based smart system to monitor and maintain temperature-sensitive medicines such as vaccines and insulin.</li>
+          <li>Used real-time DHT11 and LM35 sensors, with GSM alerts, a buzzer, and automated cooling via relay.</li>
+          <li>Designed for safe medicine storage in rural healthcare applications.</li>
+          <li>Team project with Priyanka Gandhi A & Swathi Govindarajan.</li>
+        </ul>
+        <div class="proj-links">
+          <a href="https://github.com/medusatrive-creater/MediGuard-IoT-Based-Smart-Medicine-Temperature-Protection-System" class="proj-link">↳ View on GitHub</a>
+          <a href="https://medusatrive-creater.github.io/MediGuard-IoT-Based-Smart-Medicine-Temperature-Protection-System" class="proj-link demo">↗ Demo / Website</a>
+        </div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-head">
+          <div class="proj-title">Traffic Controller</div>
+          <div class="proj-kicker">VERILOG · MAR–APR 2025</div>
+        </div>
+        <p style="color:var(--text-mute); font-size:14.5px;">An intelligent traffic control system that reads traffic density and reacts instead of running on a fixed clock.</p>
+        <ul>
+          <li>Developed a dynamic traffic light control system using adaptive signal timing techniques.</li>
+          <li>Implemented as a finite state machine (FSM) in Verilog HDL.</li>
+          <li>Optimized traffic flow by reducing vehicle waiting time based on real-time traffic density.</li>
+          <li>Independent project with Priyanka Gandhi A.</li>
+        </ul>
+        <div class="proj-links">
+          <a href="https://github.com/medusatrive-creater/Traffic-Controller" class="proj-link">↳ View on GitHub</a>
+          <a href="https://medusatrive-creater.github.io/Traffic-Controller" class="proj-link demo">↗ Demo / Website</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="experience">
+      <div class="node">
+        <div class="node-dot"></div>
+        <span class="node-label">Internship Experience</span>
+        <div class="node-rule"></div>
+      </div>
+
+      <div class="card" style="padding:8px 28px;">
+        <div class="timeline-item">
+          <div class="tl-date">May — Jun 2025</div>
+          <div class="tl-item">
+            <div class="tl-role">Embedded Engineering Intern</div>
+            <div class="tl-org">Industrial Distribution Group</div>
+            <ul>
+              <li>Assisted in software testing, debugging, and technical documentation.</li>
+              <li>Collaborated on engineering projects to improve workflow efficiency.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-date">Dec 2024 — Feb 2025</div>
+          <div class="tl-item">
+            <div class="tl-role">Student Intern, Space Technology</div>
+            <div class="tl-org">Agnirva.com Learning Network (ISRO Mentorship) · Coimbatore</div>
+            <ul>
+              <li>Studied satellite communication and signal processing concepts.</li>
+              <li>Completed research-based learning modules in space technology.</li>
+              <li>Developed a technical report connecting ECE fundamentals with real-world applications.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="certs">
+      <div class="node">
+        <div class="node-dot"></div>
+        <span class="node-label">Certifications</span>
+        <div class="node-rule"></div>
+      </div>
+      <div class="cert-grid">
+        <div class="cert cert-featured">
+          <span class="cert-chip">OCI</span>
+          <div>
+            <div class="cert-name">Oracle Cloud Infrastructure 2026 Certified Foundations Associate</div>
+            <div class="cert-issuer">Oracle</div>
+          </div>
+        </div>
+        <div class="cert">
+          <span class="cert-chip">VLSI</span>
+          <div>
+            <div class="cert-name">VLSI Chip Design</div>
+            <div class="cert-issuer">Maven Silicon</div>
+          </div>
+        </div>
+        <div class="cert">
+          <span class="cert-chip">EMB</span>
+          <div>
+            <div class="cert-name">Basics of Embedded System Design</div>
+            <div class="cert-issuer">Maven Silicon</div>
+          </div>
+        </div>
+        <div class="cert">
+          <span class="cert-chip">EMB</span>
+          <div>
+            <div class="cert-name">Embedded Systems for Beginners</div>
+            <div class="cert-issuer">IIT Calicut</div>
+          </div>
+        </div>
+        <div class="cert">
+          <span class="cert-chip">AI</span>
+          <div>
+            <div class="cert-name">AI for Beginners</div>
+            <div class="cert-issuer">LinkedIn Learning</div>
+          </div>
+        </div>
+        <div class="cert">
+          <span class="cert-chip">SEC</span>
+          <div>
+            <div class="cert-name">Introduction to Cybersecurity Awareness</div>
+            <div class="cert-issuer">LinkedIn Learning</div>
+          </div>
+        </div>
+        <div class="cert">
+          <span class="cert-chip">BIZ</span>
+          <div>
+            <div class="cert-name">Business Communications</div>
+            <div class="cert-issuer">LinkedIn Learning</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="honors">
+      <div class="node">
+        <div class="node-dot"></div>
+        <span class="node-label">Honors & Awards</span>
+        <div class="node-rule"></div>
+      </div>
+      <div class="card" style="display:flex; align-items:center; gap:16px; padding:20px 26px;">
+        <span class="cert-chip" style="background:var(--copper);">HACK</span>
+        <div>
+          <div class="cert-name">Adobe India Hackathon — Participation Certificate</div>
+          <div class="cert-issuer">Adobe</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="mono">MONICA GANDHI AROKIA SELVARAJ &nbsp;//&nbsp; monicagandhia@gmail.com</div>
+  </div>
+</footer>
+
+</body>
+</html>
