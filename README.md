@@ -6,7 +6,7 @@ This portfolio showcases my projects, skills, certifications, and experience in 
 
 ## 🚀 Live Website
 
-👉 **Visit here:** https://YOUR-USERNAME.github.io/YOUR-REPOSITORY/
+👉 **Visit here:** [https://medusatrive-creater.github.io/my-portfolio/]
 
 ## ✨ Features
 
